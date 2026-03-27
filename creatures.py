@@ -1,4 +1,5 @@
 import random
+from colored import Fore, Style
 class Creature:
     def __init__(self, name, agility, strength, weapon=None, helmet=None, chest=None, boots=None):
         self.name = name
@@ -11,6 +12,18 @@ class Creature:
             "boots": boots
         }
         self.hp = self.max_hp
+        self.attack_timer = 0
+    def update(self, delta_time, target):
+        self.attack_timer += delta_time
+        cooldown = 1 / self.real_speed
+
+        if self.attack_timer >= cooldown:
+            self.attack_timer -= cooldown
+            return self.attack(target)
+    def attack(self, enemy):
+        r_dmg = max(self.real_dmg - enemy.real_armor, 0)
+        enemy.hp -= r_dmg
+        return f"{Fore.green}{self.name}{Style.reset} atakoval {Fore.red}{enemy.name}{Style.reset} i nanes {Fore.yellow}{r_dmg:.1f} damaga{Style.reset}\n"
     @property
     def bonus_hp(self):
         return sum(getattr(i, "hp", 0) for i in self.equipment.values() if i)
@@ -38,15 +51,10 @@ class Enemy(Creature):
 
 class Hero(Creature):
     def __init__(self, name, agility, strength, weapon=None, helmet=None, chest=None, boots=None):
-        super().__init__(name, agility, strength)
+        super().__init__(name, agility, strength, weapon, helmet, chest, boots)
         self.kills = 0
         self.level = 1
         self.inventory = {}
-    def attack(self, enemy):
-        r_dmg = max(self.real_dmg - enemy.real_armor, 0)
-        enemy.hp -= r_dmg
-        print(f"ti dal {r_dmg} damaga")
-        print(f"vrag {enemy.hp} hp")
 
     def take_damage(self, enemy):
         self.hp -= max(enemy.real_dmg - self.real_armor, 0)
