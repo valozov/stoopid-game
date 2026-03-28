@@ -1,18 +1,18 @@
 class Item:
-    def __init__(self, name, count):
+    def __init__(self, name, count) -> None:
         self.name = name
         self.count = count
 
 
 class Weapon(Item):
-    def __init__(self, name, dmg, speed, count=1):
+    def __init__(self, name, dmg, speed, count=1) -> None:
         super().__init__(name, count)
         self.dmg = dmg
         self.speed = speed
 
 
 class Armor(Item):
-    def __init__(self, name, armor, hp, bonus_agility, bonus_strength, count=1):
+    def __init__(self, name, armor, hp, bonus_agility, bonus_strength, count=1) -> None:
         super().__init__(name, count)
         self.armor = armor
         self.hp = hp
@@ -21,6 +21,6 @@ class Armor(Item):
 
 
 class Consumable(Item):
-    def __init__(self, name, heal, count=1):
+    def __init__(self, name, heal, count=1) -> None:
         super().__init__(name, count)
         self.heal = heal
