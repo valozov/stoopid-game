@@ -37,6 +37,8 @@ class Creature:
     def attack(self, enemy) -> str:
         r_dmg = max(self.real_dmg - enemy.real_armor, 0)
         enemy.hp -= r_dmg
+        if enemy.hp < 0:
+            enemy.hp = 0
         return (f"{Fore.green}{self.name}{Style.reset} atakoval {Fore.red}"
                 f"{enemy.name}{Style.reset} i nanes {Fore.yellow}{r_dmg:.1f}"
                 f" damaga{Style.reset}\n")
@@ -85,7 +87,25 @@ class Hero(Creature):
         super().__init__(name, agility, strength, weapon, helmet, chest, boots)
         self.kills = 0
         self.level = 1
+        self.exp = 0
+        self.exp_to_next_level = 10
         self.inventory = {}
+
+    def kill(self, enemy, current_difficulty):
+        self.kills += 1
+        current_difficulty = {"easy": 0.5, "mid": 0.75, "hard": 1.0}[current_difficulty]
+        self.exp += self.level * current_difficulty * 10 + (enemy.agility + enemy.strength)/5
+        if self.exp >= self.exp_to_next_level:
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.exp -= self.exp_to_next_level
+        self.exp_to_next_level = int(self.exp_to_next_level * 1.5)
+        self.strength *= 1.1
+        self.agility *= 1.1
+        self.hp = self.max_hp
+        return f"{self.name} reached level {self.level}!"
 
 
 def show_equipment(player) -> None:
