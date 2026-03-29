@@ -35,7 +35,7 @@ class Creature:
             return self.attack(target)
 
     def attack(self, enemy) -> str:
-        r_dmg = max(self.real_dmg - enemy.real_armor, 0)
+        r_dmg = max(self.real_dmg * random.randint(0.9, 1.1) - enemy.real_armor, 0)
         enemy.hp -= r_dmg
         if enemy.hp < 0:
             enemy.hp = 0
@@ -134,7 +134,7 @@ def create_enemy(level=1, difficulty="mid") -> Enemy:
     return Enemy(name, agility, strength)
 
 
-ENEMY_NAMES = ["Vanya", "Gomosek", "Rostik", "Jirniy", "Pisya", "Chmo",
+ENEMY_NAMES = ["Vanya", "Чебурашка(Лего фильтр)", "Gomosek", "Rostik", "Jirniy", "Pisya", "Chmo",
                "Loser", "Suka", "Pidor", "Durak>-<", "Kozel", "Shlyapa",
                "Zadrot", "Blin", "Pizda"]
 ELITE_ENEMY_NAMES = ["Hitler", "Nastya", "Putin", "Trump", "Zelenskiy",
