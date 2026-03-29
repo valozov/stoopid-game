@@ -10,6 +10,7 @@ class Creature:
                  agility: int,
                  strength: int,
                  weapon: Weapon = None,
+                 shield: Armor = None,
                  helmet: Armor = None,
                  chest: Armor = None,
                  boots: Armor = None) -> None:
@@ -18,6 +19,7 @@ class Creature:
         self.strength = strength
         self.equipment = {
             "weapon": weapon,
+            "shield": shield,
             "helmet": helmet,
             "chest": chest,
             "boots": boots
@@ -49,25 +51,36 @@ class Creature:
 
     @property
     def max_hp(self):
-        return self.strength * 10 + self.bonus_hp
-
-    @property
-    def bonus_armor(self):
-        return sum(getattr(i, "armor", 0) for i in self.equipment.values() if i)
+        return self.strength * 8 + self.bonus_hp
 
     @property
     def real_armor(self):
-        return self.agility / 6 + self.bonus_armor
+        return sum(getattr(i, "armor", 0) for i in self.equipment.values() if i)
+
+    @property
+    def equip_block(self):
+        shield_block = getattr(self.equipment.get("shield"), "block_chance", 0) if self.equipment.get("shield") else 0
+        armor_block = sum(getattr(i, "block_chance", 0) for i in [self.equipment.get("helmet"), self.equipment.get("chest"), self.equipment.get("boots")] if i)
+        return armor_block * 0.05 + shield_block * 0.25
 
     @property
     def real_dmg(self):
         weapon_dmg = self.equipment["weapon"].dmg if self.equipment["weapon"] else 0
-        return (self.strength + self.agility)/2 + weapon_dmg
+        return self.strength / 2 + weapon_dmg
 
     @property
     def real_speed(self):
         weapon_speed = self.equipment["weapon"].speed if self.equipment["weapon"] else 0
-        return self.agility/6 + weapon_speed
+        return self.agility / 6 + weapon_speed
+
+    @property
+    def block_chance(self):
+        shield_value = getattr(self.equipment.get("shield"), "block_chance", 0) if self.equipment.get("shield") else 0
+        return min(2 + self.equip_block + (self.agility / (self.agility + 100)) * 40, 50)
+
+    @property
+    def block_power(self):
+        return 0.25 + (self.strength / (self.strength + 100)) * 0.45
 
 
 class Enemy(Creature):
@@ -94,7 +107,7 @@ class Hero(Creature):
     def kill(self, enemy, current_difficulty):
         self.kills += 1
         current_difficulty = {"easy": 0.5, "mid": 0.75, "hard": 1.0}[current_difficulty]
-        self.exp += self.level * current_difficulty * 10 + (enemy.agility + enemy.strength)/5
+        self.exp += self.level * current_difficulty * 10 + (enemy.agility + enemy.strength) / 5
         if self.exp >= self.exp_to_next_level:
             self.level_up()
 
