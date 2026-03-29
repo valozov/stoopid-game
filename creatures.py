@@ -28,23 +28,6 @@ class Creature:
         self.hp = self.max_hp
         self.attack_timer = 0
 
-    def update(self, delta_time, target) -> str | None:
-        self.attack_timer += delta_time
-        cooldown = 1 / self.real_speed
-
-        if self.attack_timer >= cooldown:
-            self.attack_timer -= cooldown
-            return self.attack(target)
-
-    def attack(self, enemy) -> str:
-        r_dmg = max(self.real_dmg * random.randint(0.9, 1.1) - enemy.real_armor, 0)
-        enemy.hp -= r_dmg
-        if enemy.hp < 0:
-            enemy.hp = 0
-        return (f"{Fore.green}{self.name}{Style.reset} atakoval {Fore.red}"
-                f"{enemy.name}{Style.reset} i nanes {Fore.yellow}{r_dmg:.1f}"
-                f" damaga{Style.reset}\n")
-
     @property
     def bonus_hp(self):
         return sum(getattr(i, "hp", 0) for i in self.equipment.values() if i)
@@ -75,12 +58,47 @@ class Creature:
 
     @property
     def block_chance(self):
-        shield_value = getattr(self.equipment.get("shield"), "block_chance", 0) if self.equipment.get("shield") else 0
-        return min(2 + self.equip_block + (self.agility / (self.agility + 100)) * 40, 50)
+        return min(2.0 + self.equip_block + (self.agility / (self.agility + 200.0)) * 40, 50)
 
     @property
     def block_power(self):
-        return 0.25 + (self.strength / (self.strength + 100)) * 0.45
+        return 0.25 + (self.strength / (self.strength + 100.0)) * 0.45
+
+    @property
+    def evade_chance(self):
+        return min(2.0 + (self.agility / (self.agility + 100.0)) * 60, 60)
+
+    def update(self, delta_time, target) -> str | None:
+        self.attack_timer += delta_time
+        cooldown = 1 / self.real_speed
+
+        if self.attack_timer >= cooldown:
+            self.attack_timer -= cooldown
+            return self.attack(target)
+
+    def attack(self, enemy) -> str:
+        dmg = self.real_dmg * random.uniform(0.9, 1.1)
+
+        if random.random() < enemy.evade_chance / 100.0:
+            return f"{Fore.green}{self.name}{Style.reset} atakoval {Fore.red}{enemy.name}{Style.reset}, no on uvernulsya\n"
+
+        if random.random() < enemy.block_chance / 100.0:
+            dmg = max(dmg - dmg * enemy.block_power, 0)
+
+            enemy.hp -= dmg
+            if enemy.hp < 0:
+                enemy.hp = 0
+
+            return (f"{Fore.green}{enemy.name}{Style.reset} zablokiroval {Fore.yellow}{dmg * enemy.block_power:.1f}{Style.reset} " +
+                    f"damage, poluchil {Fore.yellow}{dmg:.1f}{Style.reset} damage\n")
+
+        enemy.hp -= dmg
+        if enemy.hp < 0:
+            enemy.hp = 0
+
+        return (f"{Fore.green}{self.name}{Style.reset} atakoval {Fore.red}"
+                f"{enemy.name}{Style.reset} i nanes {Fore.yellow}{dmg:.1f}"
+                f" damaga{Style.reset}\n")
 
 
 class Enemy(Creature):

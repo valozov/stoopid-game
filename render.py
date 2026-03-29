@@ -62,8 +62,7 @@ def update_info(player, enemy, time_from_start):
 
 def victory(info, log, level_up: str = None):
     subprocess.run('cls' if os.name == 'nt' else 'clear', shell=True)
-    print(info + "".join(log) +
-          f"{Fore.green}You win!{Style.reset}")
+    print(info + "".join(log) + f"{Fore.green}You win!{Style.reset}")
     if level_up:
         print(level_up)
     input("Press Enter to continue...")
@@ -71,8 +70,7 @@ def victory(info, log, level_up: str = None):
 
 def defeat(info, log):
     subprocess.run('cls' if os.name == 'nt' else 'clear', shell=True)
-    print(info + "".join(log) +
-          f"{Fore.red}You lose!{Style.reset}")
+    print(info + "".join(log) + f"{Fore.red}You lose!{Style.reset}")
     input("Press Enter to continue...")
 
 
@@ -97,7 +95,7 @@ def choose_difficulty(player_info):
     return difficulty
 
 
-def render_game(player=None, enemy=None):
+def render_game(player=None):
     subprocess.run('cls' if os.name == 'nt' else 'clear', shell=True)
 
     if not player:  # input player name
@@ -121,4 +119,3 @@ def render_game(player=None, enemy=None):
     print(player_info)
 
     battle(player_info, player)
-    
